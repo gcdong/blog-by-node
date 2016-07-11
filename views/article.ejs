@@ -1,0 +1,46 @@
+<% include header %>
+<% if(user && (user.name == post.name)) { %>
+<p>
+	<span><a class="edit" href="/edit/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">编辑</a></span>
+	<span><a class="edit" href="/remove/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">删除</a></span>
+</p>
+<% } %>
+<!-- 转载 -->
+<% var flag = 1 %>
+<% if(user && (user.name != post.name)) { %>
+	<!-- 这个文章是转载来的并且登录就是上一级文章的作者 -->
+	<% if((post.reprint_info.reprint_from != undefined) && (user.name == post.reprint_info.reprint_from.name)) { %>
+		<% flag = 0; %>
+	<% } %>
+	<!-- 已经转载过了 -->
+	<% if(post.reprint_info.reprint_from != undefined) { %>
+
+		<% post.reprint_info.reprint_to.forEach(function (post,index) {  %>
+			<% if (post.name == user.name) { %>
+				<% flag = 0; %>
+			<% } %>
+		<% }) %>
+	<% } %>
+<% }else { %>
+	<%  flag = 0; %>
+<% } %>
+<% if(flag) { %>
+	<span><a href="/reprint/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">转载</a></span>
+<% } %>
+<p class="info">
+	作者: <a href="/u/<%= post.name %>"><%= post.name %></a> |
+	日期: <%= post.time.day %>
+</p>
+<p class="info">
+  阅读：<%= post.pv %> | 
+  评论：<%= post.comments.length %> | 
+  转载：
+  <% if (post.reprint_info.reprint_to) { %>
+    <%= post.reprint_info.reprint_to.length %>
+  <% } else { %>
+    <%= 0 %>
+  <% } %>
+</p>
+<p><%- post.post %></p>
+<% include comment %>
+<% include footer %>
